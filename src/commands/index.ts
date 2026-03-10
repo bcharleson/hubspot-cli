@@ -150,8 +150,19 @@ function registerCommand(parent: Command, cmdDef: CommandDefinition): void {
       if (!parsed.success) {
         const issues = parsed.error.issues ?? [];
         const missing = issues
-          .filter((i: any) => i.code === 'invalid_type' && String(i.message).includes('received undefined'))
-          .map((i: any) => '--' + String(i.path?.[0] ?? '').replace(/_/g, '-'));
+          .filter((i: any) => {
+            const fieldName = String(i.path?.[0] ?? '');
+            const fieldValue = (input as Record<string, any>)[fieldName];
+            return fieldValue === undefined || fieldValue === null;
+          })
+          .map((i: any) => {
+            const flag = '--' + String(i.path?.[0] ?? '').replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase().replace(/_/g, '-');
+            // For enum fields, include allowed values
+            if (i.code === 'invalid_value' && i.values) {
+              return `${flag} (expected: ${i.values.join(', ')})`;
+            }
+            return flag;
+          });
         if (missing.length > 0) {
           throw new Error(`Missing required option(s): ${missing.join(', ')}`);
         }

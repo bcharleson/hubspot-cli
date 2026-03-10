@@ -74,10 +74,10 @@ const associationsCreateCommand: CommandDefinition = {
       { field: 'associationCategory', flags: '--category <cat>', description: 'HUBSPOT_DEFINED or USER_DEFINED' },
     ],
   },
-  endpoint: { method: 'PUT', path: '/crm/v4/associations/{fromObjectType}/{toObjectType}/batch/create' },
+  endpoint: { method: 'POST', path: '/crm/v4/associations/{fromObjectType}/{toObjectType}/batch/create' },
   fieldMappings: {},
   handler: async (input, client) => {
-    return client.put(
+    return client.post(
       `/crm/v4/associations/${input.fromObjectType}/${input.toObjectType}/batch/create`,
       {
         inputs: [
@@ -123,7 +123,7 @@ const associationsDeleteCommand: CommandDefinition = {
   endpoint: { method: 'POST', path: '/crm/v4/associations/{fromObjectType}/{toObjectType}/batch/archive' },
   fieldMappings: {},
   handler: async (input, client) => {
-    return client.post(
+    const result = await client.post(
       `/crm/v4/associations/${input.fromObjectType}/${input.toObjectType}/batch/archive`,
       {
         inputs: [
@@ -134,6 +134,7 @@ const associationsDeleteCommand: CommandDefinition = {
         ],
       },
     );
+    return result ?? { status: 'deleted', from: input.fromObjectId, to: input.toObjectId };
   },
 };
 

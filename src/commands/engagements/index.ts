@@ -11,27 +11,39 @@ const createNoteCommand: CommandDefinition = {
   name: 'engagements_create_note',
   group: 'engagements',
   subcommand: 'create-note',
-  description: 'Create a note engagement.',
+  description: 'Create a note engagement. Use --associations to link to contacts/companies/deals.',
   examples: [
     'hubspot engagements create-note --body "Called client, discussed renewal"',
-    'hubspot engagements create-note --body "Follow up needed" --owner-id <id>',
+    'hubspot engagements create-note --body "Follow up needed" --owner-id <id> --associations \'[{"to":{"id":"123"},"types":[{"associationTypeId":202,"associationCategory":"HUBSPOT_DEFINED"}]}]\'',
   ],
   inputSchema: z.object({
     hs_note_body: z.string().describe('Note body (HTML or plain text)'),
     hs_timestamp: z.string().optional().describe('Timestamp (ISO 8601, defaults to now)'),
     hubspot_owner_id: z.string().optional().describe('Owner ID'),
+    associations: z.string().optional().describe('JSON array of associations (e.g., [{"to":{"id":"123"},"types":[{"associationTypeId":202,"associationCategory":"HUBSPOT_DEFINED"}]}])'),
   }),
   cliMappings: {
     options: [
       { field: 'hs_note_body', flags: '-b, --body <text>', description: 'Note body' },
       { field: 'hs_timestamp', flags: '--timestamp <iso>', description: 'Timestamp (ISO 8601)' },
       { field: 'hubspot_owner_id', flags: '--owner-id <id>', description: 'Owner ID' },
+      { field: 'associations', flags: '--associations <json>', description: 'JSON array of associations' },
     ],
   },
   endpoint: { method: 'POST', path: '/crm/v3/objects/notes' },
-  fieldMappings: { hs_note_body: 'body', hs_timestamp: 'body', hubspot_owner_id: 'body' },
-  bodyWrapper: 'properties',
-  handler: (input, client) => executeCommand(createNoteCommand, input, client),
+  fieldMappings: {},
+  handler: async (input, client) => {
+    const properties: Record<string, string> = {
+      hs_note_body: input.hs_note_body,
+      hs_timestamp: input.hs_timestamp ?? new Date().toISOString(),
+    };
+    if (input.hubspot_owner_id) properties.hubspot_owner_id = input.hubspot_owner_id;
+    const body: Record<string, unknown> = { properties };
+    if (input.associations) {
+      body.associations = JSON.parse(input.associations);
+    }
+    return client.post('/crm/v3/objects/notes', body);
+  },
 };
 
 // ── CREATE EMAIL ────────────────────────────────
@@ -39,7 +51,7 @@ const createEmailCommand: CommandDefinition = {
   name: 'engagements_create_email',
   group: 'engagements',
   subcommand: 'create-email',
-  description: 'Create an email engagement.',
+  description: 'Create an email engagement. Use --associations to link to contacts/companies/deals.',
   examples: [
     'hubspot engagements create-email --subject "Follow up" --body "<p>Hi there</p>" --direction OUTBOUND',
   ],
@@ -51,6 +63,7 @@ const createEmailCommand: CommandDefinition = {
     hubspot_owner_id: z.string().optional().describe('Owner ID'),
     hs_email_to_email: z.string().optional().describe('To email address'),
     hs_email_from_email: z.string().optional().describe('From email address'),
+    associations: z.string().optional().describe('JSON array of associations'),
   }),
   cliMappings: {
     options: [
@@ -61,16 +74,25 @@ const createEmailCommand: CommandDefinition = {
       { field: 'hubspot_owner_id', flags: '--owner-id <id>', description: 'Owner ID' },
       { field: 'hs_email_to_email', flags: '--to <email>', description: 'To email address' },
       { field: 'hs_email_from_email', flags: '--from <email>', description: 'From email address' },
+      { field: 'associations', flags: '--associations <json>', description: 'JSON array of associations' },
     ],
   },
   endpoint: { method: 'POST', path: '/crm/v3/objects/emails' },
-  fieldMappings: {
-    hs_email_subject: 'body', hs_email_text: 'body', hs_email_direction: 'body',
-    hs_timestamp: 'body', hubspot_owner_id: 'body',
-    hs_email_to_email: 'body', hs_email_from_email: 'body',
+  fieldMappings: {},
+  handler: async (input, client) => {
+    const properties: Record<string, string> = {
+      hs_email_subject: input.hs_email_subject,
+      hs_timestamp: input.hs_timestamp ?? new Date().toISOString(),
+    };
+    if (input.hs_email_text) properties.hs_email_text = input.hs_email_text;
+    if (input.hs_email_direction) properties.hs_email_direction = input.hs_email_direction;
+    if (input.hubspot_owner_id) properties.hubspot_owner_id = input.hubspot_owner_id;
+    if (input.hs_email_to_email) properties.hs_email_to_email = input.hs_email_to_email;
+    if (input.hs_email_from_email) properties.hs_email_from_email = input.hs_email_from_email;
+    const body: Record<string, unknown> = { properties };
+    if (input.associations) body.associations = JSON.parse(input.associations);
+    return client.post('/crm/v3/objects/emails', body);
   },
-  bodyWrapper: 'properties',
-  handler: (input, client) => executeCommand(createEmailCommand, input, client),
 };
 
 // ── CREATE CALL ─────────────────────────────────
@@ -78,7 +100,7 @@ const createCallCommand: CommandDefinition = {
   name: 'engagements_create_call',
   group: 'engagements',
   subcommand: 'create-call',
-  description: 'Create a call engagement.',
+  description: 'Create a call engagement. Use --associations to link to contacts/companies/deals.',
   examples: [
     'hubspot engagements create-call --body "Discussed pricing" --status COMPLETED --duration 300000',
   ],
@@ -91,6 +113,7 @@ const createCallCommand: CommandDefinition = {
     hs_call_from_number: z.string().optional().describe('From phone number'),
     hs_timestamp: z.string().optional().describe('Timestamp (ISO 8601)'),
     hubspot_owner_id: z.string().optional().describe('Owner ID'),
+    associations: z.string().optional().describe('JSON array of associations'),
   }),
   cliMappings: {
     options: [
@@ -102,16 +125,26 @@ const createCallCommand: CommandDefinition = {
       { field: 'hs_call_from_number', flags: '--from <number>', description: 'From phone number' },
       { field: 'hs_timestamp', flags: '--timestamp <iso>', description: 'Timestamp (ISO 8601)' },
       { field: 'hubspot_owner_id', flags: '--owner-id <id>', description: 'Owner ID' },
+      { field: 'associations', flags: '--associations <json>', description: 'JSON array of associations' },
     ],
   },
   endpoint: { method: 'POST', path: '/crm/v3/objects/calls' },
-  fieldMappings: {
-    hs_call_body: 'body', hs_call_status: 'body', hs_call_duration: 'body',
-    hs_call_direction: 'body', hs_call_to_number: 'body', hs_call_from_number: 'body',
-    hs_timestamp: 'body', hubspot_owner_id: 'body',
+  fieldMappings: {},
+  handler: async (input, client) => {
+    const properties: Record<string, string> = {
+      hs_timestamp: input.hs_timestamp ?? new Date().toISOString(),
+    };
+    if (input.hs_call_body) properties.hs_call_body = input.hs_call_body;
+    if (input.hs_call_status) properties.hs_call_status = input.hs_call_status;
+    if (input.hs_call_duration) properties.hs_call_duration = input.hs_call_duration;
+    if (input.hs_call_direction) properties.hs_call_direction = input.hs_call_direction;
+    if (input.hs_call_to_number) properties.hs_call_to_number = input.hs_call_to_number;
+    if (input.hs_call_from_number) properties.hs_call_from_number = input.hs_call_from_number;
+    if (input.hubspot_owner_id) properties.hubspot_owner_id = input.hubspot_owner_id;
+    const body: Record<string, unknown> = { properties };
+    if (input.associations) body.associations = JSON.parse(input.associations);
+    return client.post('/crm/v3/objects/calls', body);
   },
-  bodyWrapper: 'properties',
-  handler: (input, client) => executeCommand(createCallCommand, input, client),
 };
 
 // ── CREATE TASK ─────────────────────────────────
@@ -119,7 +152,7 @@ const createTaskCommand: CommandDefinition = {
   name: 'engagements_create_task',
   group: 'engagements',
   subcommand: 'create-task',
-  description: 'Create a task engagement.',
+  description: 'Create a task engagement. Use --associations to link to contacts/companies/deals.',
   examples: [
     'hubspot engagements create-task --subject "Follow up call" --status NOT_STARTED --priority HIGH',
   ],
@@ -131,6 +164,7 @@ const createTaskCommand: CommandDefinition = {
     hs_task_type: z.string().optional().describe('Type: TODO, CALL, EMAIL'),
     hs_timestamp: z.string().optional().describe('Due date (ISO 8601)'),
     hubspot_owner_id: z.string().optional().describe('Owner ID'),
+    associations: z.string().optional().describe('JSON array of associations'),
   }),
   cliMappings: {
     options: [
@@ -141,16 +175,25 @@ const createTaskCommand: CommandDefinition = {
       { field: 'hs_task_type', flags: '--type <type>', description: 'Type (TODO, CALL, EMAIL)' },
       { field: 'hs_timestamp', flags: '--due-date <iso>', description: 'Due date (ISO 8601)' },
       { field: 'hubspot_owner_id', flags: '--owner-id <id>', description: 'Owner ID' },
+      { field: 'associations', flags: '--associations <json>', description: 'JSON array of associations' },
     ],
   },
   endpoint: { method: 'POST', path: '/crm/v3/objects/tasks' },
-  fieldMappings: {
-    hs_task_subject: 'body', hs_task_body: 'body', hs_task_status: 'body',
-    hs_task_priority: 'body', hs_task_type: 'body',
-    hs_timestamp: 'body', hubspot_owner_id: 'body',
+  fieldMappings: {},
+  handler: async (input, client) => {
+    const properties: Record<string, string> = {
+      hs_task_subject: input.hs_task_subject,
+      hs_timestamp: input.hs_timestamp ?? new Date().toISOString(),
+    };
+    if (input.hs_task_body) properties.hs_task_body = input.hs_task_body;
+    if (input.hs_task_status) properties.hs_task_status = input.hs_task_status;
+    if (input.hs_task_priority) properties.hs_task_priority = input.hs_task_priority;
+    if (input.hs_task_type) properties.hs_task_type = input.hs_task_type;
+    if (input.hubspot_owner_id) properties.hubspot_owner_id = input.hubspot_owner_id;
+    const body: Record<string, unknown> = { properties };
+    if (input.associations) body.associations = JSON.parse(input.associations);
+    return client.post('/crm/v3/objects/tasks', body);
   },
-  bodyWrapper: 'properties',
-  handler: (input, client) => executeCommand(createTaskCommand, input, client),
 };
 
 // ── CREATE MEETING ──────────────────────────────
@@ -158,7 +201,7 @@ const createMeetingCommand: CommandDefinition = {
   name: 'engagements_create_meeting',
   group: 'engagements',
   subcommand: 'create-meeting',
-  description: 'Create a meeting engagement.',
+  description: 'Create a meeting engagement. Use --associations to link to contacts/companies/deals.',
   examples: [
     'hubspot engagements create-meeting --title "Discovery Call" --start "2026-03-15T10:00:00Z" --end "2026-03-15T11:00:00Z"',
   ],
@@ -171,6 +214,7 @@ const createMeetingCommand: CommandDefinition = {
     hs_meeting_location: z.string().optional().describe('Meeting location or URL'),
     hs_timestamp: z.string().optional().describe('Timestamp (ISO 8601)'),
     hubspot_owner_id: z.string().optional().describe('Owner ID'),
+    associations: z.string().optional().describe('JSON array of associations'),
   }),
   cliMappings: {
     options: [
@@ -182,17 +226,26 @@ const createMeetingCommand: CommandDefinition = {
       { field: 'hs_meeting_location', flags: '--location <location>', description: 'Location or URL' },
       { field: 'hs_timestamp', flags: '--timestamp <iso>', description: 'Timestamp (ISO 8601)' },
       { field: 'hubspot_owner_id', flags: '--owner-id <id>', description: 'Owner ID' },
+      { field: 'associations', flags: '--associations <json>', description: 'JSON array of associations' },
     ],
   },
   endpoint: { method: 'POST', path: '/crm/v3/objects/meetings' },
-  fieldMappings: {
-    hs_meeting_title: 'body', hs_meeting_body: 'body',
-    hs_meeting_start_time: 'body', hs_meeting_end_time: 'body',
-    hs_meeting_outcome: 'body', hs_meeting_location: 'body',
-    hs_timestamp: 'body', hubspot_owner_id: 'body',
+  fieldMappings: {},
+  handler: async (input, client) => {
+    const properties: Record<string, string> = {
+      hs_meeting_title: input.hs_meeting_title,
+      hs_timestamp: input.hs_timestamp ?? new Date().toISOString(),
+    };
+    if (input.hs_meeting_body) properties.hs_meeting_body = input.hs_meeting_body;
+    if (input.hs_meeting_start_time) properties.hs_meeting_start_time = input.hs_meeting_start_time;
+    if (input.hs_meeting_end_time) properties.hs_meeting_end_time = input.hs_meeting_end_time;
+    if (input.hs_meeting_outcome) properties.hs_meeting_outcome = input.hs_meeting_outcome;
+    if (input.hs_meeting_location) properties.hs_meeting_location = input.hs_meeting_location;
+    if (input.hubspot_owner_id) properties.hubspot_owner_id = input.hubspot_owner_id;
+    const body: Record<string, unknown> = { properties };
+    if (input.associations) body.associations = JSON.parse(input.associations);
+    return client.post('/crm/v3/objects/meetings', body);
   },
-  bodyWrapper: 'properties',
-  handler: (input, client) => executeCommand(createMeetingCommand, input, client),
 };
 
 // ── LIST ENGAGEMENTS (by type) ──────────────────

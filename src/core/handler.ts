@@ -43,10 +43,20 @@ export async function executeCommand(
       : body
     : undefined;
 
-  return client.request({
+  const result = await client.request({
     method: cmdDef.endpoint.method,
     path,
     query: hasQuery ? query : undefined,
     body: finalBody,
   });
+
+  // DELETE returns 204 No Content (undefined) — return a confirmation object
+  if (result === undefined && cmdDef.endpoint.method === 'DELETE') {
+    // Extract the ID from the resolved path (last segment)
+    const segments = path.split('/').filter(Boolean);
+    const id = segments[segments.length - 1];
+    return { status: 'archived', id };
+  }
+
+  return result;
 }
