@@ -24,6 +24,11 @@ import { allTicketsCommands } from './tickets/index.js';
 import { allEngagementsCommands } from './engagements/index.js';
 import { allAssociationsCommands } from './associations/index.js';
 
+// Command definitions — Phase 3
+import { allListsCommands } from './lists/index.js';
+import { allPropertiesCommands } from './properties/index.js';
+import { allSearchCommands } from './search/index.js';
+
 /** All command definitions — the single source of truth for CLI + MCP */
 export const allCommands: CommandDefinition[] = [
   // Phase 1: Core CRM objects
@@ -36,6 +41,10 @@ export const allCommands: CommandDefinition[] = [
   ...allTicketsCommands,
   ...allEngagementsCommands,
   ...allAssociationsCommands,
+  // Phase 3: Lists, Properties, Universal Search
+  ...allListsCommands,
+  ...allPropertiesCommands,
+  ...allSearchCommands,
 ];
 
 export function registerAllCommands(program: Command): void {
