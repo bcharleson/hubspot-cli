@@ -10,7 +10,7 @@ export async function startMcpServer(): Promise<void> {
 
   const server = new McpServer({
     name: 'hubspot',
-    version: '0.1.0',
+    version: '0.1.2',
   });
 
   // Register every CommandDefinition as an MCP tool

@@ -82,7 +82,7 @@ const associationsCreateCommand: CommandDefinition = {
       {
         inputs: [
           {
-            _from: { id: input.fromObjectId },
+            from: { id: input.fromObjectId },
             to: { id: input.toObjectId },
             types: [
               {

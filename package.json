@@ -1,6 +1,6 @@
 {
   "name": "hubspot-cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "CLI and MCP server for the HubSpot CRM API — contacts, companies, deals, tickets, pipelines, and more",
   "type": "module",
   "bin": {
