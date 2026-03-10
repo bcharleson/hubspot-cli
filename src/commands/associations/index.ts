@@ -129,7 +129,7 @@ const associationsDeleteCommand: CommandDefinition = {
         inputs: [
           {
             from: { id: input.fromObjectId },
-            to: { id: input.toObjectId },
+            to: [{ id: input.toObjectId }],
           },
         ],
       },

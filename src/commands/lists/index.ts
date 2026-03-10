@@ -43,7 +43,9 @@ const listsGetCommand: CommandDefinition = {
   },
   endpoint: { method: 'GET', path: '/crm/v3/lists/{listId}' },
   fieldMappings: { listId: 'path' },
-  handler: (input, client) => executeCommand(listsGetCommand, input, client),
+  handler: async (input, client) => {
+    return client.get(`/crm/v3/lists/${input.listId}`, { includeFilters: true });
+  },
 };
 
 // ── CREATE LIST ─────────────────────────────────
@@ -90,9 +92,11 @@ const listsUpdateCommand: CommandDefinition = {
       { field: 'name', flags: '-n, --name <name>', description: 'New list name' },
     ],
   },
-  endpoint: { method: 'PUT', path: '/crm/v3/lists/{listId}' },
+  endpoint: { method: 'PUT', path: '/crm/v3/lists/{listId}/update-list-name' },
   fieldMappings: { listId: 'path', name: 'body' },
-  handler: (input, client) => executeCommand(listsUpdateCommand, input, client),
+  handler: async (input, client) => {
+    return client.put(`/crm/v3/lists/${input.listId}/update-list-name`, { name: input.name });
+  },
 };
 
 // ── DELETE LIST ─────────────────────────────────
