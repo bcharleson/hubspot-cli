@@ -100,6 +100,21 @@ Every command is registered as an MCP tool. Configure in Claude Desktop, OpenCla
 {
   "mcpServers": {
     "hubspot": {
+      "command": "npx",
+      "args": ["hubspot-cli", "mcp"],
+      "env": {
+        "HUBSPOT_ACCESS_TOKEN": "pat-na1-xxxxx"
+      }
+    }
+  }
+}
+```
+
+Or with a local install:
+```json
+{
+  "mcpServers": {
+    "hubspot": {
       "command": "node",
       "args": ["/path/to/hubspot-cli/dist/mcp.js"],
       "env": {
@@ -129,11 +144,35 @@ hubspot contacts list --fields id,properties.email,properties.firstname
 # Search companies by name
 hubspot companies search --query "acme" --properties name,domain,industry --pretty
 
-# Create a deal
-hubspot deals create --dealname "Acme Enterprise" --amount "50000" --pipeline "default" --dealstage "appointmentscheduled"
+# Create a deal in a pipeline stage
+hubspot deals create --dealname "Acme Enterprise" --amount "50000" \
+  --pipeline "<pipeline-id>" --dealstage "<stage-id>"
 
 # Get all deal pipelines with stages
 hubspot pipelines list --object-type deals --pretty
+
+# Log a note
+hubspot engagements create-note --body "Discovery call — interested in enterprise plan"
+
+# Create a follow-up task
+hubspot engagements create-task --subject "Send proposal" --status NOT_STARTED --priority HIGH
+
+# Associate a contact with a company
+hubspot associations create --from-type contacts --from-id 123 \
+  --to-type companies --to-id 456 --type-id 1
+
+# Manage a list
+hubspot lists create --name "VIP Customers" --processing-type MANUAL
+hubspot lists add-members <list-id> --record-ids "123,456"
+
+# Create a custom property
+hubspot properties create --object-type contacts --name "lead_score" \
+  --label "Lead Score" --type number --field-type number --group contactinformation
+
+# Universal search across any object type
+hubspot search run --object-type deals \
+  --filter '{"filters":[{"propertyName":"amount","operator":"GT","value":"10000"}]}' \
+  --properties dealname,amount,dealstage
 
 # Pipe to jq
 hubspot contacts list | jq '.results[].properties.email'
