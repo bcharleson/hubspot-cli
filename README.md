@@ -53,13 +53,45 @@ hubspot pipelines stages <pipeline-id> --object-type deals
 
 ## Auth
 
+### 1. Create a Private App in HubSpot
+
+1. Go to **Settings** → **Integrations** → **Private Apps**
+2. Click **Create a private app**
+3. Name it (e.g., `hubspot-cli`)
+4. Go to the **Scopes** tab and enable:
+
+| Scope | What it unlocks |
+|-------|-----------------|
+| `crm.objects.contacts.read` / `write` | contacts commands |
+| `crm.objects.companies.read` / `write` | companies commands |
+| `crm.objects.deals.read` / `write` | deals commands |
+| `crm.objects.owners.read` | owners commands |
+| `crm.lists.read` / `write` | lists commands |
+| `tickets` | tickets commands |
+| `crm.schemas.contacts.read` | properties commands |
+
+5. Click **Create app** → confirm → copy the access token (starts with `pat-na1-`)
+
+### 2. Authenticate
+
 Three-tier resolution (highest priority first):
 
-1. `--access-token <token>` CLI flag
-2. `HUBSPOT_ACCESS_TOKEN` environment variable
-3. `~/.hubspot-cli/config.json` (saved via `hubspot login`)
+```bash
+# Option A: Environment variable (recommended for agents)
+export HUBSPOT_ACCESS_TOKEN="pat-na1-xxxxx"
 
-Get your access token from [HubSpot Private Apps](https://app.hubspot.com/private-apps/).
+# Option B: Interactive login (saves to ~/.hubspot-cli/config.json)
+hubspot login
+
+# Option C: Per-command flag
+hubspot contacts list --access-token "pat-na1-xxxxx"
+```
+
+### 3. Verify
+
+```bash
+hubspot contacts list --limit 1 --pretty
+```
 
 ## Commands
 
