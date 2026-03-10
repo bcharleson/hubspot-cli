@@ -12,25 +12,30 @@ import { registerStatusCommand } from './auth/status.js';
 // MCP command
 import { registerMcpCommand } from './mcp/index.js';
 
-// Command definitions
+// Command definitions — Phase 1
 import { allContactsCommands } from './contacts/index.js';
 import { allCompaniesCommands } from './companies/index.js';
 import { allDealsCommands } from './deals/index.js';
 import { allOwnersCommands } from './owners/index.js';
 import { allPipelinesCommands } from './pipelines/index.js';
 
+// Command definitions — Phase 2
+import { allTicketsCommands } from './tickets/index.js';
+import { allEngagementsCommands } from './engagements/index.js';
+import { allAssociationsCommands } from './associations/index.js';
+
 /** All command definitions — the single source of truth for CLI + MCP */
 export const allCommands: CommandDefinition[] = [
-  // Contacts (list, get, create, update, delete, search, merge)
+  // Phase 1: Core CRM objects
   ...allContactsCommands,
-  // Companies (list, get, create, update, delete, search)
   ...allCompaniesCommands,
-  // Deals (list, get, create, update, delete, search)
   ...allDealsCommands,
-  // Owners (list, get)
   ...allOwnersCommands,
-  // Pipelines (list, get, stages)
   ...allPipelinesCommands,
+  // Phase 2: Tickets, Engagements, Associations
+  ...allTicketsCommands,
+  ...allEngagementsCommands,
+  ...allAssociationsCommands,
 ];
 
 export function registerAllCommands(program: Command): void {
