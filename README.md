@@ -10,7 +10,7 @@
 
 | | `@hubspot/cli` (Official) | `hubspot-cli` (This) |
 |---|---|---|
-| **Scope** | CMS only (themes, modules, serverless) | Full CRM API (contacts, companies, deals, tickets, pipelines, owners) |
+| **Scope** | CMS only (themes, modules, serverless) | Full CRM API — 55 commands across 11 groups |
 | **Output** | Human-readable text | JSON-first — machine-parseable by default |
 | **MCP Support** | No | Built-in MCP server — every command is an MCP tool |
 | **Agent Use** | Not designed for agents | Every command works identically from terminal or MCP |
@@ -63,15 +63,21 @@ Get your access token from [HubSpot Private Apps](https://app.hubspot.com/privat
 
 ## Commands
 
-### CRM Objects
+### CRM Objects (55 commands)
 
 | Group | Commands |
 |-------|----------|
 | **contacts** | `list`, `get`, `create`, `update`, `delete`, `search`, `merge` |
 | **companies** | `list`, `get`, `create`, `update`, `delete`, `search` |
 | **deals** | `list`, `get`, `create`, `update`, `delete`, `search` |
+| **tickets** | `list`, `get`, `create`, `update`, `delete`, `search` |
 | **owners** | `list`, `get` |
 | **pipelines** | `list`, `get`, `stages` |
+| **engagements** | `create-note`, `create-email`, `create-call`, `create-task`, `create-meeting`, `list`, `get`, `delete` |
+| **associations** | `list`, `create`, `delete` |
+| **lists** | `list`, `get`, `create`, `update`, `delete`, `add-members`, `remove-members`, `get-members` |
+| **properties** | `list`, `get`, `create`, `update`, `delete` |
+| **search** | `run` (universal cross-object search) |
 
 ### Auth & Config
 
