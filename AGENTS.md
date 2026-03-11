@@ -8,6 +8,9 @@
 # Install globally
 npm install -g hubspot-cli
 
+# Create a Private App token in HubSpot first:
+# Settings -> Integrations -> Private Apps -> Create a private app
+
 # Authenticate (non-interactive — best for agents)
 export HUBSPOT_ACCESS_TOKEN="pat-na1-xxxxx"
 
@@ -18,6 +21,14 @@ hubspot contacts list
 **Requirements:** Node.js 18+
 
 ## Authentication
+
+Create the token in HubSpot:
+
+1. Go to **Settings** → **Integrations** → **Private Apps** → **Create a private app**
+2. In **Basic info**, give it a name such as `hubspot-cli-agent`
+3. In **Scopes**, enable the scopes for the command groups you need
+4. Click **Create app**
+5. In the **Auth** tab, click **Show token** and copy the value. It starts with `pat-na1-` followed by your region.
 
 Set your access token via environment variable — no interactive login needed:
 
@@ -37,15 +48,16 @@ Access tokens are generated from HubSpot Private Apps: https://app.hubspot.com/p
 
 Your Private App needs these scopes depending on which commands you use:
 
-| Scope | Commands |
-|-------|----------|
-| `crm.objects.contacts.read/write` | contacts |
-| `crm.objects.companies.read/write` | companies |
-| `crm.objects.deals.read/write` | deals |
-| `crm.objects.owners.read` | owners |
-| `crm.schemas.contacts.read` | properties (contacts) |
-| `tickets` | tickets |
-| `crm.lists.read/write` | lists |
+| Command group | Scopes required |
+|---------------|-----------------|
+| `contacts` | `crm.objects.contacts.read` + `crm.objects.contacts.write` |
+| `companies` | `crm.objects.companies.read` + `crm.objects.companies.write` |
+| `deals` | `crm.objects.deals.read` + `crm.objects.deals.write` |
+| `tickets` | `tickets` |
+| `owners` | `crm.objects.owners.read` |
+| `engagements` (email read) | `sales-email-read` only if you need to read email body content |
+| `lists` | `crm.lists.read` + `crm.lists.write` |
+| `properties` | `crm.schemas.contacts.read` + `crm.schemas.contacts.write`, `crm.schemas.companies.read` + `crm.schemas.companies.write`, `crm.schemas.deals.read` + `crm.schemas.deals.write` |
 
 ## Output Format
 

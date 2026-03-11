@@ -32,10 +32,10 @@ npm install -g hubspot-cli
 ## Quick Start
 
 ```bash
-# Authenticate (interactive)
-hubspot login
+# 1. Create a Private App access token in HubSpot
+# Settings -> Integrations -> Private Apps -> Create a private app
 
-# Or set env var
+# 2. Authenticate with the token
 export HUBSPOT_ACCESS_TOKEN=pat-na1-xxxxx
 
 # List contacts
@@ -53,24 +53,25 @@ hubspot pipelines stages <pipeline-id> --object-type deals
 
 ## Auth
 
-### 1. Create a Private App in HubSpot
+### 1. Create a Private App access token
 
-1. Go to **Settings** → **Integrations** → **Private Apps**
-2. Click **Create a private app**
-3. Name it (e.g., `hubspot-cli`)
-4. Go to the **Scopes** tab and enable:
+1. In HubSpot, go to **Settings** → **Integrations** → **Private Apps** → **Create a private app**
+2. In the **Basic info** tab, give it a name such as `hubspot-cli-agent`
+3. In the **Scopes** tab, add the scopes for the command groups you plan to use:
 
-| Scope | What it unlocks |
-|-------|-----------------|
-| `crm.objects.contacts.read` / `write` | contacts commands |
-| `crm.objects.companies.read` / `write` | companies commands |
-| `crm.objects.deals.read` / `write` | deals commands |
-| `crm.objects.owners.read` | owners commands |
-| `crm.lists.read` / `write` | lists commands |
-| `tickets` | tickets commands |
-| `crm.schemas.contacts.read` | properties commands |
+| Command group | Scopes required |
+|---------------|-----------------|
+| `contacts` | `crm.objects.contacts.read` + `crm.objects.contacts.write` |
+| `companies` | `crm.objects.companies.read` + `crm.objects.companies.write` |
+| `deals` | `crm.objects.deals.read` + `crm.objects.deals.write` |
+| `tickets` | `tickets` |
+| `owners` | `crm.objects.owners.read` |
+| `engagements` (email read) | `sales-email-read` only if you need to read email body content |
+| `lists` | `crm.lists.read` + `crm.lists.write` |
+| `properties` | `crm.schemas.contacts.read` + `crm.schemas.contacts.write`, `crm.schemas.companies.read` + `crm.schemas.companies.write`, `crm.schemas.deals.read` + `crm.schemas.deals.write` |
 
-5. Click **Create app** → confirm → copy the access token (starts with `pat-na1-`)
+4. Click **Create app**
+5. Open the **Auth** tab, click **Show token**, and copy the access token. It starts with `pat-na1-` followed by your region.
 
 ### 2. Authenticate
 
