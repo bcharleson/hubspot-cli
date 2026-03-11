@@ -6,7 +6,7 @@ const program = new Command();
 program
   .name('hubspot')
   .description('CLI and MCP server for the HubSpot CRM API')
-  .version('0.1.3')
+  .version('0.1.4')
   .option('--access-token <token>', 'Access token (overrides HUBSPOT_ACCESS_TOKEN env var and stored config)')
   .option('--output <format>', 'Output format: json (default) or pretty', 'json')
   .option('--pretty', 'Shorthand for --output pretty')
